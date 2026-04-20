@@ -1,55 +1,40 @@
 import asyncio
 import datetime
-from aiogram import Bot, Dispatcher, types
+from aiogram import Bot, Dispatcher, types, F
 from aiogram.filters import Command
 
-# Вставь сюда свой токен
+# Твой токен
 API_TOKEN = '8471734836:AAH0wbdpfIaxnoZchWlh3pSO_gBa0ehFd2A'
 
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher()
 
-def get_countdown_to_summer():
+def get_countdown():
     now = datetime.datetime.now()
-    year = now.year
+    summer_start = datetime.datetime(now.year + (1 if now.month > 8 else 0), 6, 1)
     
-    # Если уже лето, но еще не закончилось (июнь, июль, август)
     if 6 <= now.month <= 8:
-        return "Ура! Лето уже в самом разгаре! Наслаждайся теплом! ☀️"
+        return "Лето уже здесь! Время развивать бизнес! 🚀"
     
-    # Определяем дату начала ближайшего лета
-    # Если сейчас сентябрь-декабрь, ждем лето следующего года
-    if now.month > 8:
-        summer_start = datetime.datetime(year + 1, 6, 1)
-    else:
-        summer_start = datetime.datetime(year, 6, 1)
-        
     delta = summer_start - now
-    
-    days = delta.days
-    hours, remainder = divmod(delta.seconds, 3600)
-    minutes, seconds = divmod(remainder, 60)
-    
-    return (
-        f"⏳ **Отсчёт до лета:**\n\n"
-        f"• Дней: **{days}**\n"
-        f"• Часов: **{hours}**\n"
-        f"• Минут: **{minutes}**\n"
-        f"• Секунд: **{seconds}**\n\n"
-        f"Готовь шорты и солнцезащитный крем! 🍦"
+    return f"⏳ До начала летнего сезона осталось: {delta.days} дней и {delta.seconds // 3600} часов."
+
+# Хендлер для БИЗНЕС-сообщений (когда пишут тебе в личку, а бот отвечает)
+@dp.business_message(Command("лето"))
+async def business_summer_handler(message: types.Message):
+    # business_connection_id обязателен для ответа от имени бизнес-аккаунта
+    await message.answer(
+        get_countdown(),
+        business_connection_id=message.business_connection_id
     )
 
-@dp.message(Command("start"))
-async def cmd_start(message: types.Message):
-    await message.answer("Привет! Я твой бизнес-помощник. Чтобы узнать, сколько осталось до отпуска, введи команду /лето")
-
+# Обычный хендлер (если пишут самому боту)
 @dp.message(Command("лето"))
-async def cmd_summer(message: types.Message):
-    report = get_countdown_to_summer()
-    await message.answer(report, parse_mode="Markdown")
+async def private_summer_handler(message: types.Message):
+    await message.answer(get_countdown())
 
 async def main():
-    print("Бот запущен...")
+    print("Бизнес-бот запущен...")
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
