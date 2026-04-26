@@ -14,7 +14,6 @@ SUB_PORT = '2096'                    # Порт подписки из настр
 LOGIN = '54RBN6CGW3'                      # Логин от панели
 PASSWORD = 'dsBc0092in'             # Пароль от панели
 INBOUND_ID = 1                       # ID твоего входящего подключения (Германия)
-ICON_URL = 'https://i.imgur.com/7WceXVn.jpeg' # Прямая ссылка на фото
 
 logging.basicConfig(level=logging.INFO)
 bot = Bot(token=API_TOKEN)
@@ -24,34 +23,36 @@ router = Router()
 def get_vpn_link(user_id):
     session = requests.Session()
     
-    # 1. Авторизация
+    # 1. Авторизация в панели
     login_url = f"{PANEL_URL}/login"
-    session.post(login_url, data={'username': LOGIN, 'password': PASSWORD})
-    
-    # 2. Генерация уникального ID для нового юзера
-    client_uuid = str(uuid.uuid4())
-    client_email = f"tg_{user_id}"
-    
-    # 3. Добавление клиента через API
-    add_url = f"{PANEL_URL}/panel/api/inbounds/addClient"
-    payload = {
-        "id": INBOUND_ID,
-        "settings": "{\"clients\": [{\"id\": \"" + client_uuid + "\", \"alterId\": 0, \"email\": \"" + client_email + "\", \"limitIp\": 1, \"totalGB\": 0, \"expiryTime\": 0, \"enable\": true, \"tgId\": \"\", \"subId\": \"" + client_uuid + "\"}]}"
-    }
-    
-    response = session.post(add_url, json=payload)
-    
-    if response.json().get('success'):
-        # 4. Формируем ту самую ссылку с категорией и иконкой
-        # В этой версии панели subId обычно совпадает с UUID
-        final_link = f"http://31.44.9.47:{SUB_PORT}/sub/{client_uuid}?remark=TrubaVPN&icon={ICON_URL}"
-        return final_link
-    else:
+    try:
+        session.post(login_url, data={'username': LOGIN, 'password': PASSWORD}, timeout=10)
+        
+        # 2. Создаем уникальный ID для пользователя
+        client_uuid = str(uuid.uuid4())
+        client_email = f"tg_{user_id}"
+        
+        # 3. Добавляем клиента через API панели
+        add_url = f"{PANEL_URL}/panel/api/inbounds/addClient"
+        payload = {
+            "id": INBOUND_ID,
+            "settings": "{\"clients\": [{\"id\": \"" + client_uuid + "\", \"alterId\": 0, \"email\": \"" + client_email + "\", \"limitIp\": 1, \"totalGB\": 0, \"expiryTime\": 0, \"enable\": true, \"subId\": \"" + client_uuid + "\"}]}"
+        }
+        
+        response = session.post(add_url, json=payload, timeout=10)
+        
+        if response.json().get('success'):
+            # 4. Формируем ссылку ТОЛЬКО с названием (категорией)
+            final_link = f"http://31.44.9.47:{SUB_PORT}/sub/{client_uuid}?remark=TrubaVPN"
+            return final_link
+        return None
+    except Exception as e:
+        logging.error(f"Error: {e}")
         return None
 
 @router.message(Command("start"))
 async def start(message: types.Message):
-    await message.answer("Привет! Нажми /new_vpn чтобы получить личную подписку с иконкой и категорией.")
+    await message.answer("Привет! Нажми /new_vpn чтобы получить личный доступ.")
 
 @router.message(Command("new_vpn"))
 async def create_key(message: types.Message):
@@ -63,12 +64,12 @@ async def create_key(message: types.Message):
     if link:
         await message.answer(
             f"✅ Твой доступ готов!\n\n"
-            f"Скопируй эту ссылку и добавь в Happ как **Subscription**:\n\n"
+            f"Добавь эту ссылку в Happ как **Subscription**:\n\n"
             f"{hcode(link)}", 
             parse_mode="HTML"
         )
     else:
-        await message.answer("❌ Ошибка при создании ключа. Проверь настройки панели.")
+        await message.answer("❌ Ошибка при создании. Проверь, запущена ли панель.")
 
 async def main():
     dp.include_router(router)
