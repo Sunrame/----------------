@@ -2,47 +2,21 @@
 /* w — голосов «работает», p — «частично», x — «не работает»
    u — числовой ключ даты (месяц*100+день) для сортировки
    wl — обход белых списков: ok / mid / no                    */
-const DATA = [
- {n:'WPN.ME',upd:'23 июл',u:723,w:48,p:2,x:2,r:4.8,rv:28,wl:'ok',pr:350,tr:'Безлимит',dv:'10',pt:['VLESS','Reality'],trl:true,
-  rw:[{a:'Олег',o:'МТС',s:5,t:'Полгода без единого разрыва, ютуб в 4К.',d:'21 июл'},{a:'Аноним',o:'Билайн',s:4,t:'Работает, но хочется сервер поближе.',d:'14 июл'}]},
- {n:'XConnect VPN',upd:'20 июл',u:720,w:258,p:9,x:8,r:4.7,rv:87,wl:'ok',pr:149,tr:'Безлимит',dv:'3',pt:['VLESS','Reality'],trl:true,
-  rw:[{a:'Марина',o:'МегаФон',s:5,t:'Даже в белом списке тянет — редкость.',d:'19 июл'},{a:'dmtr',o:'Tele2',s:4,t:'Иногда просаживается вечером, в целом топ.',d:'8 июл'}]},
- {n:'StealthSurf VPN',upd:'26 июл',u:726,w:229,p:13,x:10,r:4.6,rv:150,wl:'ok',pr:199,tr:'Безлимит',dv:'Безлимит',pt:['VLESS','Reality','XHTTP'],trl:true,
-  rw:[{a:'Аноним',o:'МТС',s:5,t:'Двухзвенная схема реально спасает на мобильном.',d:'26 июл'},{a:'Kira',o:'Ростелеком',s:4,t:'Скорость ок, поддержка отвечает быстро.',d:'22 июл'},{a:'Паша',o:'Билайн',s:5,t:'Единственный, кто пережил июльские блокировки.',d:'17 июл'}]},
- {n:'AmneziaVPN',upd:'25 июл',u:725,w:240,p:40,x:59,r:3.7,rv:50,wl:'no',pr:380,tr:'Безлимит',dv:'7',pt:['AmneziaWG','OpenVPN'],
-  rw:[{a:'Гена',o:'МТС',s:3,t:'Свой сервер — хорошо, но настройка не для всех.',d:'23 июл'},{a:'Аноним',o:'МегаФон',s:2,t:'В белом списке лежит полностью.',d:'11 июл'}]},
- {n:'GeodemaVPN',upd:'9 июл',u:709,w:156,p:20,x:16,r:4.1,rv:20,wl:'mid',pr:299,tr:'Безлимит',dv:'10',pt:['VLESS','WireGuard']},
- {n:'FS VPN',upd:'26 июл',u:726,w:119,p:0,x:0,r:5.0,rv:30,wl:'ok',pr:299,tr:'Безлимит',dv:'от 1 до 10',pt:['VLESS','Reality'],trl:true},
- {n:'DOZOR VPN',upd:'27 июл',u:727,w:98,p:1,x:1,r:4.9,rv:45,wl:'ok',pr:199,tr:'Безлимит',dv:'3, 5, 7',pt:['VLESS','Reality','Hysteria2'],
-  rw:[{a:'Света',o:'Tele2',s:5,t:'Ни одного падения за месяц, беру ещё год.',d:'27 июл'}]},
- {n:'GLOBUS VPN',upd:'24 июн',u:624,w:120,p:12,x:9,r:4.3,rv:38,wl:'mid',pr:149,tr:'Безлимит',dv:'—',pt:['VLESS','Shadowsocks']},
- {n:'КОПАТЫЧ ВПН',upd:'26 июл',u:726,w:89,p:3,x:2,r:4.8,rv:12,wl:'mid',pr:50,tr:'Безлимит',dv:'—',pt:['VLESS'],
-  rw:[{a:'Аноним',o:'МТС',s:5,t:'За полтинник — просто копай и пользуйся.',d:'25 июл'}]},
- {n:'EOFVPN',upd:'18 июл',u:718,w:120,p:26,x:20,r:3.9,rv:16,wl:'mid',pr:0,tr:'Безлимит',dv:'15',pt:['VLESS','OpenVPN']},
- {n:'VPN Red Shield',upd:'9 июл',u:709,w:92,p:10,x:9,r:4.2,rv:15,wl:'mid',pr:800,tr:'Безлимит',dv:'10',pt:['VLESS','WireGuard']},
- {n:'BlancVPN',upd:'22 июн',u:622,w:112,p:20,x:26,r:3.7,rv:42,wl:'mid',pr:800,tr:'Безлимит',dv:'Безлимит',pt:['VLESS','Hysteria2'],trl:true},
- {n:'ByGate VPN',upd:'18 июл',u:718,w:71,p:0,x:0,r:5.0,rv:5,wl:'mid',pr:149,tr:'Безлимит',dv:'Безлимит',pt:['VLESS','Reality']},
- {n:'Velion VPN',upd:'26 июн',u:626,w:78,p:0,x:0,r:5.0,rv:12,wl:'ok',pr:159,tr:'Безлимит',dv:'3',pt:['VLESS','Reality']},
- {n:'FPTN',upd:'25 июл',u:725,w:70,p:16,x:10,r:3.8,rv:15,wl:'mid',pr:0,tr:'Безлимит',dv:'3',pt:['Shadowsocks']},
- {n:'MatadoraVPN',upd:'27 июл',u:727,w:48,p:3,x:2,r:4.5,rv:11,wl:'ok',pr:159,tr:'Безлимит',dv:'1-10',pt:['VLESS','Reality']},
- {n:'PaperVPN',upd:'27 июл',u:727,w:62,p:10,x:15,r:3.9,rv:9,wl:'no',pr:380,tr:'100 ГБ / мес',dv:'Безлимит',pt:['WireGuard','OpenVPN']},
- {n:'SatkaVPN',upd:'27 июл',u:727,w:46,p:4,x:3,r:4.5,rv:17,wl:'ok',pr:0,tr:'100 ГБ / мес',dv:'1-999',pt:['VLESS','AmneziaWG']},
- {n:'Flow Proxy',upd:'22 июл',u:722,w:60,p:9,x:7,r:4.0,rv:8,wl:'mid',pr:199,tr:'50 ГБ / мес',dv:'3',pt:['Shadowsocks','VLESS']},
- {n:'Xnet VPN',upd:'26 июл',u:726,w:38,p:2,x:1,r:4.6,rv:13,wl:'mid',pr:0,tr:'Безлимит',dv:'1, 5, 10, 20',pt:['VLESS']},
- {n:'ZVO Connect',upd:'30 июн',u:630,w:27,p:0,x:0,r:5.0,rv:21,wl:'ok',pr:199,tr:'Безлимит',dv:'—',pt:['VLESS','Reality']},
- {n:'PROTECT YOU VPN',upd:'6 июн',u:606,w:31,p:5,x:4,r:4.5,rv:14,wl:'ok',pr:0,tr:'Безлимит',dv:'5, 10, безлимит',pt:['VLESS','AmneziaWG']},
- {n:'ShadowHub',upd:'5 июн',u:605,w:38,p:7,x:5,r:4.1,rv:5,wl:'mid',pr:250,tr:'Безлимит',dv:'5',pt:['Shadowsocks','VLESS']},
- {n:'Lightning VPN',upd:'27 июл',u:727,w:23,p:1,x:0,r:4.9,rv:35,wl:'ok',pr:150,tr:'500 ГБ / мес',dv:'2-8',pt:['VLESS','Hysteria2'],trl:true},
- {n:'DAR VPN',upd:'3 июл',u:703,w:24,p:0,x:0,r:5.0,rv:13,wl:'ok',pr:149,tr:'Безлимит',dv:'—',pt:['VLESS','Reality']},
- {n:'Turbo Gate VPN',upd:'25 июл',u:725,w:19,p:1,x:1,r:4.7,rv:7,wl:'ok',pr:99,tr:'Безлимит',dv:'5',pt:['VLESS'],trl:true},
- {n:'SnegVPN',upd:'21 июл',u:721,w:15,p:4,x:3,r:4.0,rv:6,wl:'mid',pr:0,tr:'10 ГБ / мес',dv:'1',pt:['WireGuard']},
- {n:'Kometa VPN',upd:'27 июл',u:727,w:14,p:1,x:0,r:4.9,rv:9,wl:'ok',pr:129,tr:'Безлимит',dv:'3',pt:['VLESS','Reality'],trl:true},
- {n:'Bober VPN',upd:'12 июл',u:712,w:11,p:4,x:4,r:3.5,rv:4,wl:'mid',pr:89,tr:'Безлимит',dv:'—',pt:['OpenVPN','WireGuard']},
- {n:'Polar Net',upd:'26 июл',u:726,w:21,p:2,x:1,r:4.6,rv:8,wl:'ok',pr:179,tr:'Безлимит',dv:'4',pt:['Hysteria2','VLESS']},
- {n:'MgLink VPN',upd:'15 июл',u:715,w:12,p:2,x:2,r:4.2,rv:3,wl:'mid',pr:249,tr:'200 ГБ / мес',dv:'2',pt:['Shadowsocks']},
- {n:'FreeGate',upd:'18 июл',u:718,w:9,p:5,x:20,r:2.8,rv:11,wl:'no',pr:0,tr:'5 ГБ / мес',dv:'1',pt:['OpenVPN']},
- {n:'Zebra VPN',upd:'3 июн',u:603,w:7,p:3,x:16,r:2.5,rv:5,wl:'no',pr:299,tr:'Безлимит',dv:'5',pt:['OpenVPN']},
-];
+/* ═══════════ КАТАЛОГ ═══════════
+   Каталог пуст. Чтобы добавить сервис — впиши запись в DATA по образцу,
+   закоммить в GitHub, Railway передеплоит сам.
+
+   Образец записи:
+   {n:'Название', upd:'31 июл', u:731,        // u = месяц*100+день (для сортировки)
+    w:0, p:0, x:0,                            // голоса: работает / частично / нет
+    r:5.0, rv:0,                              // рейтинг и число отзывов
+    wl:'ok',                                  // обход белых списков: ok | mid | no
+    pr:199,                                   // цена от, ₽/мес (0 = бесплатно)
+    tr:'Безлимит', dv:'3',                    // трафик и устройства
+    pt:['VLESS','Reality'], trl:true,         // протоколы, пробный период
+    rw:[]}                                    // отзывы: {a:'Имя',o:'МТС',s:5,t:'текст',d:'дата'}
+*/
+const DATA = [];
 DATA.forEach((v,i)=>{ v.id=i; v.rw=v.rw||[]; });
 
 /* ================= СОСТОЯНИЕ ================= */
