@@ -14,7 +14,7 @@ BASE = Path(__file__).resolve().parent.parent
 STATIC = BASE / "static"
 ADMIN_DIR = BASE / "admin"
 
-_DOC_PAGES = {"terms", "privacy", "legal"}
+_DOC_PAGES = {"terms", "privacy", "legal"} 
 
 
 @asynccontextmanager
