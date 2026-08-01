@@ -1,15 +1,11 @@
-FROM nginx:alpine
+FROM python:3.12-slim
 
-# Шаблон конфига: nginx сам подставит $PORT при старте (нужно для Railway)
-COPY nginx.conf /etc/nginx/templates/default.conf.template
+WORKDIR /srv
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Статика сайта
-COPY . /usr/share/nginx/html
+COPY . .
 
-# Служебные файлы не должны раздаваться наружу
-RUN rm -f /usr/share/nginx/html/Dockerfile \
-          /usr/share/nginx/html/nginx.conf \
-          /usr/share/nginx/html/README.md
-
-ENV PORT=80
-EXPOSE 80
+ENV PORT=8080
+# host :: — Railway ходит в контейнеры по IPv6
+CMD uvicorn app.main:app --host :: --port ${PORT}

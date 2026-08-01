@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://vpnhub.up.railway.app/sitemap.xml

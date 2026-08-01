@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Админка | VPNHub</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/png" href="/img/favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Balsamiq+Sans:wght@700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0d0d;--panel:#151515;--panel2:#1b1b1b;--panel3:#212121;
+  --ink:#ececec;--ink2:#cfcfcf;--mut:#9a9a9a;--dim:#6f6f6f;
+  --org:#ff9000;--line:#2a2a2a;--line2:#3a3a3a;
+  --ok:#ff9000;--bad:#e05a4e;
+}
+body{background:var(--bg);color:var(--ink);font-family:'Inter',system-ui,sans-serif;line-height:1.5;min-height:100vh}
+h1,h2,h3{font-family:'Balsamiq Sans','Inter',sans-serif}
+button{font-family:inherit;cursor:pointer}
+input,select,textarea{font-family:inherit;font-size:14.5px;color:var(--ink);background:#111;border:1.5px solid var(--line2);border-radius:8px;padding:8px 11px;outline:none;width:100%}
+input:focus,select:focus,textarea:focus{border-color:var(--org)}
+label{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.4px;color:var(--mut);margin-bottom:5px;font-weight:600}
+.btn{display:inline-flex;align-items:center;gap:6px;border:1.5px solid var(--line2);border-radius:9px;background:var(--panel2);color:var(--ink);font-weight:600;font-size:14px;padding:8px 15px;transition:.12s}
+.btn:hover{border-color:#7a7a7a;color:#fff}
+.btn.prime{background:var(--org);border-color:var(--org);color:#0b0b0b}
+.btn.prime:hover{color:#0b0b0b;filter:brightness(1.08)}
+.btn.bad{border-color:var(--bad);color:var(--bad)}
+.btn.bad:hover{background:rgba(224,90,78,.12);color:#ff8a80}
+.btn.ok{border-color:var(--org);color:var(--org)}
+.btn:disabled{opacity:.5;cursor:default;pointer-events:none}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+
+/* ---------- логин ---------- */
+#loginScreen{min-height:100vh;display:flex;align-items:center;justify-content:center}
+.loginBox{width:100%;max-width:340px;background:var(--panel);border:1.5px solid var(--line2);border-radius:16px;padding:32px 28px}
+.loginBox h1{font-size:26px;text-align:center;margin-bottom:4px}
+.loginBox .sub{text-align:center;color:var(--mut);font-size:13.5px;margin-bottom:22px}
+.loginBox .field{margin-bottom:14px}
+.loginBox button{width:100%;justify-content:center;margin-top:6px;padding:10px}
+.err{color:var(--bad);font-size:13.5px;margin-top:10px;text-align:center;min-height:18px}
+
+/* ---------- приложение ---------- */
+#app{display:none}
+header{position:sticky;top:0;z-index:10;background:rgba(13,13,13,.95);backdrop-filter:blur(6px);border-bottom:1.5px solid var(--line);padding:16px 0}
+header .row{display:flex;align-items:center;gap:14px}
+header img{height:32px}
+header h1{font-size:18px}
+header .row > .btn{margin-left:auto}
+
+.tabs{display:flex;gap:8px;margin:22px 0 18px;flex-wrap:wrap}
+.tab{border:1.5px solid var(--line2);background:var(--panel);color:var(--ink2);font-weight:600;font-size:14px;padding:9px 16px;border-radius:10px;display:flex;align-items:center;gap:8px}
+.tab:hover{border-color:#7a7a7a;color:#fff}
+.tab.on{background:var(--panel3);border-color:#e8e8e8;color:#fff}
+.badge{background:var(--org);color:#0b0b0b;font-size:11.5px;font-weight:700;border-radius:20px;padding:1px 8px;min-width:20px;text-align:center}
+.badge.zero{background:var(--line2);color:var(--mut)}
+
+.panel{background:var(--panel);border:1.5px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px}
+.panel h3{font-size:15.5px;margin-bottom:12px;color:#fff}
+.meta{color:var(--mut);font-size:13px;display:flex;flex-wrap:wrap;gap:4px 14px;margin-bottom:10px}
+.meta b{color:var(--ink2);font-weight:600}
+.txt{color:var(--ink2);font-size:14.5px;white-space:pre-wrap;word-break:break-word;margin-bottom:14px}
+.actions{display:flex;gap:10px;flex-wrap:wrap}
+.empty{color:var(--dim);text-align:center;padding:40px 20px;font-size:14.5px}
+.stars-view{color:var(--org);letter-spacing:1px}
+
+/* форма сервиса */
+.sform{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.sform .full{grid-column:1/-1}
+.sform .checks{display:flex;gap:20px;align-items:center}
+.sform .checks label{display:flex;align-items:center;gap:8px;font-size:13.5px;text-transform:none;color:var(--ink2);font-weight:500;margin:0}
+.sform input[type=checkbox]{width:17px;height:17px;accent-color:var(--org)}
+.sform .full.actions{margin-top:4px}
+
+/* таблица сервисов */
+table{width:100%;border-collapse:collapse}
+th{text-align:left;font-size:11.5px;text-transform:uppercase;letter-spacing:.4px;color:var(--mut);padding:9px 10px;border-bottom:1.5px solid var(--line2)}
+td{padding:10px;border-bottom:1px solid var(--line);font-size:14px;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+.svcname{font-weight:600;color:#fff}
+.pill{font-size:12px;font-weight:600;border-radius:8px;padding:2px 9px;display:inline-block}
+.pill.on{background:rgba(255,144,0,.15);color:var(--org)}
+.pill.off{background:var(--panel3);color:var(--dim)}
+.rowbtns{display:flex;gap:6px;flex-wrap:wrap}
+.rowbtns .btn{padding:5px 10px;font-size:12.5px}
+
+@media (max-width:640px){
+  .sform{grid-template-columns:1fr}
+  table,thead,tbody,th,td,tr{display:block}
+  thead{display:none}
+  tr{border-bottom:1.5px solid var(--line2);padding:10px 0}
+  td{border:none;padding:4px 0}
+  td:before{content:attr(data-l);color:var(--mut);font-size:11.5px;display:block;margin-bottom:2px}
+}
+</style>
+</head>
+<body>
+
+<div id="loginScreen">
+  <div class="loginBox">
+    <h1>VPN<span style="color:var(--org)">Hub</span></h1>
+    <p class="sub">Вход в админ-панель</p>
+    <form id="loginForm">
+      <div class="field"><label for="lUser">Логин</label><input id="lUser" autocomplete="username" required></div>
+      <div class="field"><label for="lPass">Пароль</label><input id="lPass" type="password" autocomplete="current-password" required></div>
+      <button class="btn prime" type="submit">Войти</button>
+      <p class="err" id="loginErr"></p>
+    </form>
+  </div>
+</div>
+
+<div id="app">
+  <header>
+    <div class="wrap row">
+      <img src="/img/logo.png" alt="VPNHub">
+      <h1>Админка</h1>
+      <button class="btn" id="logoutBtn">Выйти</button>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="tabs">
+      <button class="tab" data-tab="submissions">Заявки <span class="badge zero" id="badgeSub">0</span></button>
+      <button class="tab" data-tab="reviews">Отзывы <span class="badge zero" id="badgeRev">0</span></button>
+      <button class="tab" data-tab="services">Сервисы</button>
+    </div>
+    <div id="tabBody"></div>
+  </main>
+</div>
+
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmtDate=iso=>{const d=new Date(iso);return isNaN(d)?'':d.toLocaleDateString('ru-RU',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})};
+function safeHref(url){
+  // Заявки шлют посетители — недоверенный ввод. Пускаем в href только http(s),
+  // иначе (javascript:, data: и т.п.) показываем просто текстом.
+  try{ const u=new URL(String(url)); if(u.protocol==='http:'||u.protocol==='https:') return u.href; }catch(e){}
+  return null;
+}
+
+async function api(path,opts={}){
+  const res=await fetch(path,{headers:{'Content-Type':'application/json'},...opts});
+  if(res.status===401){ showLogin(); throw new Error('__unauth__'); }
+  let data=null; try{ data=await res.json(); }catch(e){}
+  if(!res.ok) throw new Error((data&&data.detail)||'Ошибка запроса');
+  return data;
+}
+
+let TAB='submissions';
+
+function showLogin(){ $('#loginScreen').style.display='flex'; $('#app').style.display='none'; }
+function showApp(){ $('#loginScreen').style.display='none'; $('#app').style.display='block'; refreshCounts(); render(); }
+
+$('#loginForm').addEventListener('submit', async e=>{
+  e.preventDefault();
+  const user=$('#lUser').value.trim(), password=$('#lPass').value;
+  $('#loginErr').textContent='';
+  try{
+    await fetch('/api/admin/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user,password})})
+      .then(async r=>{ if(!r.ok){ const d=await r.json().catch(()=>({})); throw new Error(d.detail||'Неверный логин или пароль'); } });
+    showApp();
+  }catch(err){ $('#loginErr').textContent = err.message==='__unauth__' ? 'Неверный логин или пароль' : err.message; }
+});
+
+$('#logoutBtn').addEventListener('click', async ()=>{
+  await fetch('/api/admin/logout',{method:'POST'}); showLogin();
+});
+
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
+  TAB=t.dataset.tab;
+  document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x===t));
+  render();
+}));
+
+async function refreshCounts(){
+  try{
+    const me=await api('/api/admin/me');
+    setBadge('#badgeSub', me.pending_submissions);
+    setBadge('#badgeRev', me.pending_reviews);
+  }catch(e){}
+}
+function setBadge(sel,n){ const el=$(sel); el.textContent=n; el.classList.toggle('zero', n===0); }
+
+async function render(){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on', t.dataset.tab===TAB));
+  const body=$('#tabBody');
+  body.innerHTML='<p class="empty">Загрузка…</p>';
+  try{
+    if(TAB==='submissions') body.innerHTML = await renderSubmissions();
+    else if(TAB==='reviews') body.innerHTML = await renderReviews();
+    else body.innerHTML = await renderServices();
+  }catch(e){ if(e.message!=='__unauth__') body.innerHTML = `<p class="empty">Ошибка загрузки: ${esc(e.message)}</p>`; }
+}
+
+/* ===================== ЗАЯВКИ ===================== */
+async function renderSubmissions(){
+  const list=await api('/api/admin/submissions?status=pending');
+  if(!list.length) return '<p class="empty">Новых заявок нет 🎉</p>';
+  return list.map(s=>`
+    <div class="panel" data-sub="${s.id}">
+      <h3>${esc(s.name)}</h3>
+      <div class="meta">
+        <span>🔗 ${(()=>{const h=safeHref(s.link); return h?`<a href="${esc(h)}" target="_blank" rel="noopener noreferrer" style="color:var(--org)">${esc(s.link)}</a>`:esc(s.link);})()}</span>
+        ${s.price?`<span>💰 <b>${esc(s.price)}</b></span>`:''}
+        ${s.protocols?`<span>🛠 ${esc(s.protocols)}</span>`:''}
+        <span>🕐 ${fmtDate(s.created_at)}</span>
+      </div>
+      ${s.comment?`<div class="txt">${esc(s.comment)}</div>`:''}
+      <div class="actions">
+        <button class="btn ok" onclick="openApprove(${s.id})">✔ Добавить в каталог</button>
+        <button class="btn bad" onclick="rejectSubmission(${s.id})">✕ Отклонить</button>
+      </div>
+      <div id="approveBox-${s.id}"></div>
+    </div>`).join('');
+}
+window.rejectSubmission = async id=>{
+  if(!confirm('Отклонить заявку?')) return;
+  await api(`/api/admin/submissions/${id}/reject`,{method:'POST'});
+  refreshCounts(); render();
+};
+window.openApprove = id=>{
+  const list = window.__subsCache || [];
+  const box = $(`#approveBox-${id}`);
+  const sub = box.closest('[data-sub]');
+  const name = sub.querySelector('h3').textContent;
+  const priceGuess = (sub.querySelector('.meta span:nth-child(2)')?.textContent.match(/\d+/)||[])[0] || 0;
+  const protoGuess = Array.from(sub.querySelectorAll('.meta span')).find(s=>s.textContent.startsWith('🛠'));
+  const protoTxt = protoGuess ? protoGuess.textContent.replace('🛠','').trim() : '';
+  box.innerHTML = serviceFormHTML({name, price:priceGuess, protocols:protoTxt}, `saveFromSubmission(${id})`);
+};
+window.saveFromSubmission = async (subId)=>{
+  const body = readServiceForm(`#approveBox-${subId} .sform`);
+  body.submission_id = subId;
+  try{
+    await api('/api/admin/services',{method:'POST',body:JSON.stringify(body)});
+    refreshCounts(); render();
+  }catch(e){ alert(e.message); }
+};
+
+/* ===================== ОТЗЫВЫ ===================== */
+async function renderReviews(){
+  const list=await api('/api/admin/reviews?status=pending');
+  if(!list.length) return '<p class="empty">Отзывов на проверке нет 🎉</p>';
+  return list.map(r=>`
+    <div class="panel">
+      <h3>${esc(r.service)}</h3>
+      <div class="meta">
+        <span>👤 <b>${esc(r.author)}</b></span>
+        <span>📶 ${esc(r.operator)}</span>
+        ${r.stars?`<span class="stars-view">${'★'.repeat(r.stars)}${'☆'.repeat(5-r.stars)}</span>`:''}
+        <span>🕐 ${fmtDate(r.created_at)}</span>
+      </div>
+      <div class="txt">${esc(r.text)}</div>
+      <div class="actions">
+        <button class="btn ok" onclick="reviewAction(${r.id},'approve')">✔ Опубликовать</button>
+        <button class="btn bad" onclick="reviewAction(${r.id},'reject')">✕ Отклонить</button>
+      </div>
+    </div>`).join('');
+}
+window.reviewAction = async (id,action)=>{
+  await api(`/api/admin/reviews/${id}/${action}`,{method:'POST'});
+  refreshCounts(); render();
+};
+
+/* ===================== СЕРВИСЫ ===================== */
+function serviceFormHTML(v={}, onSaveCall='', idAttr=''){
+  const p = (v.protocols && Array.isArray(v.protocols)) ? v.protocols.join(', ') : (v.protocols||'');
+  return `<div class="sform" ${idAttr}>
+    <div><label>Название</label><input class="f-name" value="${esc(v.name||'')}" placeholder="Например: WPN.ME"></div>
+    <div><label>Цена от, ₽/мес</label><input class="f-price" type="number" min="0" value="${esc(v.price??0)}"></div>
+    <div><label>Трафик</label><input class="f-traffic" value="${esc(v.traffic||'Безлимит')}"></div>
+    <div><label>Устройства</label><input class="f-devices" value="${esc(v.devices||'—')}"></div>
+    <div class="full"><label>Протоколы (через запятую)</label><input class="f-protocols" value="${esc(p)}" placeholder="VLESS, Reality"></div>
+    <div><label>Обход белых списков</label>
+      <select class="f-wl">
+        <option value="ok" ${v.whitelist==='ok'?'selected':''}>Работает</option>
+        <option value="mid" ${(!v.whitelist||v.whitelist==='mid')?'selected':''}>Частично</option>
+        <option value="no" ${v.whitelist==='no'?'selected':''}>Не работает</option>
+      </select>
+    </div>
+    <div class="checks">
+      <label><input type="checkbox" class="f-trial" ${v.trial?'checked':''}> Пробный период</label>
+      <label><input type="checkbox" class="f-visible" ${v.visible!==false?'checked':''}> Виден в каталоге</label>
+    </div>
+    <div class="full actions">
+      <button class="btn prime" onclick="${onSaveCall}">💾 Сохранить</button>
+    </div>
+  </div>`;
+}
+function readServiceForm(scopeSel){
+  const sc = document.querySelector(scopeSel);
+  return {
+    name: sc.querySelector('.f-name').value.trim(),
+    price: +sc.querySelector('.f-price').value || 0,
+    traffic: sc.querySelector('.f-traffic').value.trim() || 'Безлимит',
+    devices: sc.querySelector('.f-devices').value.trim() || '—',
+    protocols: sc.querySelector('.f-protocols').value.split(',').map(s=>s.trim()).filter(Boolean),
+    whitelist: sc.querySelector('.f-wl').value,
+    trial: sc.querySelector('.f-trial').checked,
+    visible: sc.querySelector('.f-visible').checked,
+  };
+}
+
+let SERVICES_CACHE=[];
+async function renderServices(){
+  SERVICES_CACHE = await api('/api/admin/services');
+  const rows = SERVICES_CACHE.map(s=>`
+    <tr>
+      <td data-l="Название"><span class="svcname">${esc(s.n)}</span></td>
+      <td data-l="Цена">${s.pr===0?'Бесплатно':s.pr+' ₽'}</td>
+      <td data-l="Рейтинг">${s.r==null?'—':'★ '+s.r.toFixed(1)} <span style="color:var(--dim)">(${s.rv})</span></td>
+      <td data-l="Голоса">✔${s.w} 〜${s.p} ✕${s.x}</td>
+      <td data-l="Статус"><span class="pill ${s.visible?'on':'off'}">${s.visible?'Виден':'Скрыт'}</span></td>
+      <td data-l="Действия"><div class="rowbtns">
+        <button class="btn" onclick="toggleEdit(${s.id})">✎ Изменить</button>
+        <button class="btn" onclick="toggleVisible(${s.id})">${s.visible?'🙈 Скрыть':'👁 Показать'}</button>
+        <button class="btn bad" onclick="deleteService(${s.id},'${esc(s.n).replace(/'/g,"\\'")}')">🗑</button>
+      </div></td>
+    </tr>
+    <tr id="editRow-${s.id}" style="display:none"><td colspan="6">${''}</td></tr>`).join('');
+  return `
+    <div class="panel">
+      <h3>➕ Добавить сервис вручную</h3>
+      <div id="newServiceBox">${serviceFormHTML({}, 'createService()')}</div>
+    </div>
+    <div class="panel">
+      <h3>Все сервисы (${SERVICES_CACHE.length})</h3>
+      ${SERVICES_CACHE.length? `<table><thead><tr><th>Название</th><th>Цена</th><th>Рейтинг</th><th>Голоса</th><th>Статус</th><th>Действия</th></tr></thead><tbody>${rows}</tbody></table>` : '<p class="empty">Каталог пуст — добавьте первый сервис выше</p>'}
+    </div>`;
+}
+window.createService = async ()=>{
+  const body = readServiceForm('#newServiceBox .sform');
+  if(!body.name){ alert('Укажите название сервиса'); return; }
+  try{ await api('/api/admin/services',{method:'POST',body:JSON.stringify(body)}); render(); }
+  catch(e){ alert(e.message); }
+};
+window.toggleEdit = id=>{
+  const row = $(`#editRow-${id}`);
+  const isOpen = row.style.display!=='none';
+  document.querySelectorAll('[id^="editRow-"]').forEach(r=>r.style.display='none');
+  if(isOpen) return;
+  const svc = SERVICES_CACHE.find(s=>s.id===id);
+  row.querySelector('td').innerHTML = serviceFormHTML(svc, `saveService(${id})`);
+  row.style.display='';
+};
+window.saveService = async id=>{
+  const body = readServiceForm(`#editRow-${id} .sform`);
+  try{ await api(`/api/admin/services/${id}`,{method:'PUT',body:JSON.stringify(body)}); render(); }
+  catch(e){ alert(e.message); }
+};
+window.toggleVisible = async id=>{
+  await api(`/api/admin/services/${id}/toggle`,{method:'POST'}); render();
+};
+window.deleteService = async (id,name)=>{
+  if(!confirm(`Удалить «${name}» насовсем? Вместе с голосами и отзывами — отменить нельзя.`)) return;
+  await api(`/api/admin/services/${id}`,{method:'DELETE'}); render();
+};
+
+/* ===================== СТАРТ ===================== */
+(async ()=>{
+  try{ await api('/api/admin/me'); showApp(); }
+  catch(e){ showLogin(); }
+})();
+</script>
+</body>
+</html>
