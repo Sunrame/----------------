@@ -5,7 +5,7 @@ from pathlib import Path
 from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
-
+from starlette.middleware.base import BaseHTTPMiddleware
 from .admin import router as admin_router
 from .api import router as api_router
 from .db import close_pool, init_pool
@@ -25,6 +25,15 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="VPNHub", docs_url=None, redoc_url=None, lifespan=lifespan)
+class NoCacheMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        response = await call_next(request)
+        path = request.url.path
+        if path in ("/", "/admin") or path.endswith((".html", ".js", ".css")):
+            response.headers["Cache-Control"] = "no-cache, must-revalidate"
+        return response
+
+app.add_middleware(NoCacheMiddleware)
 
 app.include_router(api_router)
 app.include_router(admin_router)
