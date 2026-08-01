@@ -9,4 +9,4 @@ COPY . .
 ENV PORT=8080
 EXPOSE 8080
 # host :: — Railway ходит в контейнеры по IPv6
-CMD uvicorn app.main:app --host :: --port ${PORT}
+CMD uvicorn app.main:app --host 0.0.0.0 --port ${PORT}
